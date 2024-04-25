@@ -4,6 +4,12 @@ body {
   background-color: #f0f0f0;
 }
 
+.space {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+}
+
 #players {
   margin-top: 20px;
 }
@@ -18,7 +24,8 @@ body {
   align-items: center;
 }
 
-button {
+button,
+input[type="number"] {
   margin-right: 10px;
   padding: 10px 20px;
   font-size: 16px;

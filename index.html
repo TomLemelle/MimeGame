@@ -8,14 +8,25 @@
   </head>
   <body>
     <h1>Jeu de Mime</h1>
-    <button id="addPlayer">Ajouter un joueur</button>
+    <div class="space">
+      <button id="addPlayer">Ajouter un joueur</button>
+      <input
+        type="number"
+        id="pointsToWin"
+        placeholder="Points pour gagner"
+        oninput="setPointsToWin(this.value)"
+      />
+    </div>
     <div id="players"></div>
-    <button id="startGame" style="display: none">Commencer le jeu</button>
+    <div class="space">
+      <button id="startGame" style="display: none">Commencer le jeu</button>
+      <button id="resetGame" style="display: none">Réinitialiser le jeu</button>
+    </div>
     <div id="gameArea" style="display: none">
       <p id="currentMime"></p>
       <p id="timer">30</p>
-      <button id="foundMime">Mime deviné !</button>
-      <button id="notFoundMime">Mime non deviné !</button>
+      <button id="foundMime">Mime deviné!</button>
+      <button id="notFoundMime">Mime non deviné!</button>
       <p id="turnInfo"></p>
     </div>
     <audio id="endSound" src="times_up.mp3"></audio>
