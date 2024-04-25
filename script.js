@@ -53,6 +53,7 @@ const mimes = [
   "Faire des pompes",
 ];
 let gameActive = false;
+let timerId;
 
 function addPlayer() {
   const playerName = `Joueur ${players.length + 1}`;
@@ -84,7 +85,7 @@ function startGame() {
 
 function startTurn() {
   if (currentPlayerIndex >= players.length) {
-    currentPlayerIndex = 0; // Reset pour un nouveau tour
+    currentPlayerIndex = 0;
   }
   const currentPlayer = players[currentPlayerIndex];
   const randomIndex = Math.floor(Math.random() * mimes.length);
@@ -95,19 +96,37 @@ function startTurn() {
   document.getElementById(
     "turnInfo"
   ).textContent = `C'est au tour de ${currentPlayer.name} de mimer!`;
+  startTimer();
   currentPlayerIndex++;
+}
+
+function startTimer() {
+  let timeLeft = 30;
+  const timerElement = document.getElementById("timer");
+  timerElement.textContent = timeLeft;
+  timerId = setInterval(() => {
+    timeLeft--;
+    timerElement.textContent = timeLeft;
+    if (timeLeft <= 0) {
+      clearInterval(timerId);
+      document.getElementById("endSound").play();
+      timerElement.textContent = "Temps écoulé!";
+    }
+  }, 1000);
 }
 
 function mimeGuessed() {
   if (!gameActive) return;
-  players[currentPlayerIndex % players.length].score++; // Seul le devineur gagne un point
+  clearInterval(timerId);
+  players[currentPlayerIndex % players.length].score++;
   updatePlayersDisplay();
   startTurn();
 }
 
 function mimeNotGuessed() {
   if (!gameActive) return;
-  startTurn(); // Pas de points attribués
+  clearInterval(timerId);
+  startTurn();
 }
 
 document.getElementById("addPlayer").addEventListener("click", addPlayer);
