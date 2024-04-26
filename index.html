@@ -9,18 +9,16 @@
   <body>
     <h1>Jeu de Mime</h1>
     <div class="space">
+      <input type="text" id="playerName" placeholder="Entrez votre nom" />
       <button id="addPlayer">Ajouter un joueur</button>
       <input
         type="number"
-        id="pointsToWin"
-        placeholder="Points pour gagner"
-        oninput="setPointsToWin(this.value)"
+        id="numRounds"
+        placeholder="Nombre de rounds"
+        min="1"
+        max="20"
+        value="10"
       />
-    </div>
-    <div id="players"></div>
-    <div class="space">
-      <button id="startGame" style="display: none">Commencer le jeu</button>
-      <button id="resetGame" style="display: none">Réinitialiser le jeu</button>
     </div>
     <div id="gameArea" style="display: none">
       <p id="currentMime"></p>
@@ -28,6 +26,29 @@
       <button id="foundMime">Mime deviné!</button>
       <button id="notFoundMime">Mime non deviné!</button>
       <p id="turnInfo"></p>
+    </div>
+    <div id="players" class="space"></div>
+    <div class="space">
+      <button id="startGame" style="display: none">Commencer le jeu</button>
+      <button id="resetGame" style="display: none">Réinitialiser le jeu</button>
+    </div>
+    <div id="gameSummary" class="space">
+      <table id="scoreTable">
+        <thead>
+          <tr>
+            <th>Joueur / Partie</th>
+          </tr>
+        </thead>
+        <tbody id="scoreBody">
+          <!-- Les lignes des parties seront ajoutées dynamiquement ici -->
+        </tbody>
+        <tfoot>
+          <tr id="totalScores">
+            <th>Total</th>
+            <!-- Totals des scores par joueur ici -->
+          </tr>
+        </tfoot>
+      </table>
     </div>
     <audio id="endSound" src="times_up.mp3"></audio>
     <script src="script.js"></script>

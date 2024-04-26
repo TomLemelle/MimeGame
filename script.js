@@ -176,61 +176,67 @@ document.addEventListener("DOMContentLoaded", function () {
     "Devenir un photographe en safari",
   ];
   let currentPlayerIndex = 0;
+  let currentRound = 1;
+  let totalRounds = parseInt(document.getElementById("numRounds").value, 10);
   let gameActive = false;
   let timerId;
-  let pointsToWin = 10; // Nombre de points pour gagner, modifiable par l'utilisateur
+  let gameHistory = [];
 
-  function addPlayer() {
-    const playerName = `Joueur ${players.length + 1}`;
-    const player = {
-      name: playerName,
-      score: 0,
-    };
-    players.push(player);
-    updatePlayersDisplay();
-    document.getElementById("startGame").style.display = "block";
-    document.getElementById("resetGame").style.display = "block";
-  }
-
-  function updatePlayersDisplay() {
-    const playersDiv = document.getElementById("players");
-    playersDiv.innerHTML = "";
-    players.forEach((player) => {
-      const playerDiv = document.createElement("div");
-      playerDiv.className = "player";
-      playerDiv.textContent = `${player.name} : ${player.score} points`;
-      playersDiv.appendChild(playerDiv);
-    });
+  const savedPlayers = JSON.parse(localStorage.getItem("players"));
+  const savedHistory = JSON.parse(localStorage.getItem("gameHistory"));
+  if (savedPlayers && savedHistory) {
+    players.push(...savedPlayers);
+    gameHistory = savedHistory;
+    updateGameSummary();
+    updatePlayersDisplay(); // Met à jour l'affichage des scores en temps réel
   }
 
   document.getElementById("addPlayer").addEventListener("click", addPlayer);
   document.getElementById("startGame").addEventListener("click", startGame);
   document.getElementById("resetGame").addEventListener("click", resetGame);
-  document.getElementById("foundMime").addEventListener("click", mimeGuessed);
+  document.getElementById("foundMime").addEventListener("click", foundMime);
   document
     .getElementById("notFoundMime")
-    .addEventListener("click", mimeNotGuessed);
+    .addEventListener("click", notFoundMime);
 
-  function startGame() {
-    gameActive = true;
-    document.getElementById("gameArea").style.display = "block";
-    startTurn();
+  function addPlayer() {
+    const input = document.getElementById("playerName");
+    let playerName = input.value.trim();
+    if (!playerName) {
+      playerName = `Joueur ${players.length + 1}`;
+    }
+    const player = { name: playerName, score: 0 };
+    players.push(player);
+    document.getElementById("startGame").style.display = "block";
+    document.getElementById("resetGame").style.display = "block";
+    input.value = "";
+    saveToLocalStorage();
+    updatePlayersDisplay();
   }
 
-  function resetGame() {
-    clearInterval(timerId);
-    gameActive = false;
-    currentPlayerIndex = 0;
-    players.forEach((player) => (player.score = 0));
-    updatePlayersDisplay();
-    document.getElementById("timer").textContent = "30"; // Reset timer display
-    document.getElementById("gameArea").style.display = "none";
-    alert("Le jeu a été réinitialisé.");
+  function updatePlayersDisplay() {
+    const playersDiv = document.getElementById("players");
+    playersDiv.innerHTML = players
+      .map((player) => `${player.name}: ${player.score} points`)
+      .join("<br/>");
+  }
+
+  function startGame() {
+    if (!gameActive) {
+      gameActive = true;
+      document.getElementById("gameArea").style.display = "block";
+      startTurn();
+    }
   }
 
   function startTurn() {
     if (currentPlayerIndex >= players.length) {
       currentPlayerIndex = 0;
+      currentRound++;
+    }
+    if (currentRound > totalRounds) {
+      endGame();
+      return;
     }
     const currentPlayer = players[currentPlayerIndex];
     const randomIndex = Math.floor(Math.random() * mimes.length);
@@ -240,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function () {
     ).textContent = `Mime à deviner: ${mime}`;
     document.getElementById(
       "turnInfo"
-    ).textContent = `C'est au tour de ${currentPlayer.name} de mimer!`;
+    ).textContent = `Round ${currentRound}, au tour de ${currentPlayer.name} de mimer!`;
     startTimer();
     currentPlayerIndex++;
   }
@@ -256,6 +262,7 @@ document.addEventListener("DOMContentLoaded", function () {
         clearInterval(timerId);
         timerElement.textContent = "Temps écoulé!";
         playSound();
+        notFoundMime();
       }
     }, 1000);
   }
@@ -265,27 +272,76 @@ document.addEventListener("DOMContentLoaded", function () {
     sound.play().catch((e) => console.log("Erreur de lecture du son : ", e));
   }
 
-  function mimeGuessed() {
-    if (!gameActive) return;
+  function endGame() {
+    gameActive = false;
     clearInterval(timerId);
-    const playerIndex = currentPlayerIndex % players.length;
-    players[playerIndex].score++;
-    if (players[playerIndex].score >= pointsToWin) {
-      alert(`${players[playerIndex].name} a gagné la partie !`);
-      gameActive = false; // Arrêter le jeu
-      return;
-    }
+    gameHistory.push(
+      players.map((player) => ({ name: player.name, score: player.score }))
+    );
+    updateGameSummary();
+    saveToLocalStorage();
+    alert("La partie est terminée !");
+    resetGame();
+  }
+
+  function resetGame() {
+    clearInterval(timerId);
+    gameActive = false;
+    currentPlayerIndex = 0;
+    currentRound = 1;
+    players.forEach((player) => (player.score = 0));
+    updatePlayersDisplay();
+    saveToLocalStorage();
+  }
+
+  function foundMime() {
+    clearInterval(timerId);
+    const currentPlayer = players[currentPlayerIndex % players.length];
+    currentPlayer.score++;
     updatePlayersDisplay();
     startTurn();
   }
 
-  function mimeNotGuessed() {
-    if (!gameActive) return;
+  function notFoundMime() {
     clearInterval(timerId);
     startTurn();
   }
 
-  window.setPointsToWin = function (points) {
-    pointsToWin = points;
-  };
+  function saveToLocalStorage() {
+    localStorage.setItem("players", JSON.stringify(players));
+    localStorage.setItem("gameHistory", JSON.stringify(gameHistory));
+  }
+
+  function updateGameSummary() {
+    const scoreTable = document.getElementById("scoreTable");
+    scoreTable.style.display = "block";
+    scoreTable.innerHTML =
+      "<thead><tr><th>Partie</th>" +
+      players.map((player) => `<th>${player.name}</th>`).join("") +
+      "</tr></thead><tbody>";
+
+    gameHistory.forEach((game, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>Partie ${index + 1}</td>`;
+
+      let maxScore = Math.max(...game.map((p) => p.score));
+      // Count how many players have the max score
+      let maxScoreCount = game.reduce(
+        (count, player) => count + (player.score === maxScore ? 1 : 0),
+        0
+      );
+
+      game.forEach((player) => {
+        let result;
+        if (player.score === maxScore) {
+          result = maxScoreCount > 1 ? "E" : "G"; // If more than one player has the max score, it's a tie
+        } else {
+          result = "P"; // Otherwise, they didn't win or tie for the win
+        }
+        row.innerHTML += `<td>${result}</td>`;
+      });
+
+      scoreTable.appendChild(row);
+    });
+  }
 });

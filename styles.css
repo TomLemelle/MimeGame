@@ -8,10 +8,11 @@ body {
   display: flex;
   flex-direction: column;
   row-gap: 0.5rem;
+  margin-block: 0.5rem;
 }
 
 #players {
-  margin-top: 20px;
+  margin-block: 20px;
 }
 
 .player {
@@ -22,6 +23,12 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+#playerName {
+  margin-right: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
 }
 
 button,
@@ -46,4 +53,38 @@ input[type="number"] {
 #currentMime {
   font-size: 18px;
   margin-bottom: 10px;
+}
+
+#scoreTable {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+#scoreTable,
+#scoreTable th,
+#scoreTable td {
+  padding: 8px;
+  text-align: center;
+}
+
+#scoreTable th {
+  background-color: #4caf50;
+  color: white;
+}
+
+#scoreTable .winner {
+  background-color: #c3e6cb;
+}
+
+#scoreTable .loser {
+  background-color: #f5c6cb;
+}
+
+#scoreTable .tie {
+  background-color: #f7f7a6;
+}
+
+.mb {
+  margin-bottom: 20px;
 }
