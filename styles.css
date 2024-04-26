@@ -88,3 +88,10 @@ input[type="number"] {
 .mb {
   margin-bottom: 20px;
 }
+
+.label {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5rem;
+  font-size: 20px;
+}

@@ -177,7 +177,6 @@ document.addEventListener("DOMContentLoaded", function () {
   ];
   let currentPlayerIndex = 0;
   let currentRound = 1;
-  let totalRounds = parseInt(document.getElementById("numRounds").value, 10);
   let gameActive = false;
   let timerId;
   let gameHistory = [];
@@ -225,6 +224,9 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!gameActive) {
       gameActive = true;
       document.getElementById("gameArea").style.display = "block";
+      document.getElementById("startGame").style.display = "none";
+      const sound = document.getElementById("endSound");
+      sound.load();
       startTurn();
     }
   }
@@ -234,7 +236,7 @@ document.addEventListener("DOMContentLoaded", function () {
       currentPlayerIndex = 0;
       currentRound++;
     }
-    if (currentRound > totalRounds) {
+    if (currentRound > document.getElementById("numRounds").value) {
       endGame();
       return;
     }
@@ -262,7 +264,6 @@ document.addEventListener("DOMContentLoaded", function () {
         clearInterval(timerId);
         timerElement.textContent = "Temps écoulé!";
         playSound();
-        notFoundMime();
       }
     }, 1000);
   }
@@ -292,9 +293,12 @@ document.addEventListener("DOMContentLoaded", function () {
     players.forEach((player) => (player.score = 0));
     updatePlayersDisplay();
     saveToLocalStorage();
+    startGame();
   }
 
   function foundMime() {
+    const sound = document.getElementById("endSound");
+    sound.load();
     clearInterval(timerId);
     const currentPlayer = players[currentPlayerIndex % players.length];
     currentPlayer.score++;
@@ -303,6 +307,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function notFoundMime() {
+    const sound = document.getElementById("endSound");
+    sound.load();
     clearInterval(timerId);
     startTurn();
   }
